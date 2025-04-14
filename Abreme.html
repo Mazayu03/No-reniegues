@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>No reniegues</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tangerine&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #f9f5e9, #e0c9a6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Playfair Display', serif;
+      overflow: hidden;
+    }
+
+    .card-container {
+      perspective: 1000px;
+    }
+
+    .card {
+      width: 320px;
+      height: 450px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      cursor: pointer;
+    }
+
+    .card.open {
+      transform: rotateY(180deg);
+    }
+
+    .card .front, .card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: 3px solid #a67c52;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      background: #fffaf0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card .front {
+      background: linear-gradient(145deg, #f5eee0, #e8d4b0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      color: #7b4b2a;
+      font-family: 'Great Vibes', cursive;
+      text-align: center;
+    }
+
+    .card .back {
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #4b2a15;
+      font-size: 18px;
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+    }
+
+    .back .message {
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .ornament {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: url('https://www.transparenttextures.com/patterns/arabesque.png');
+      opacity: 0.1;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+  <div class="card-container">
+    <div class="card" id="birthday-card">
+      <div class="front">
+        <div>
+          <div class="ornament"></div>
+          Solo hay una ley en los sentimientos<br>Brindar felicidad a aquellos que amas 🎩<br> dame un clic!
+        </div>
+      </div>
+      <div class="back">
+        <div>
+          <h2 style="font-family: 'Great Vibes', cursive; font-size:28px;">Feliz Cumpleaños</h2>
+          <div class="message">Aunque me dijiste que no seria feliz, yo te deseo un feliz cumpleaños. <br>
+          Espero que hoy te encuentres bien y también te deseo prosperidad y exitos, me demuestras que eres una gran persona y pese a todo contagias tu sarcasmo, alegria y tambien tu apoyo.
+          En este día deseo que todo te vaya bien, tanto en lo personal como en lo profesional.
+          Se te a precia mucho M
+          .</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let clickCount = 0;
+    const card = document.getElementById('birthday-card');
+
+    card.addEventListener('pointerdown', handleCardClick);
+
+    function handleCardClick() {
+      clickCount++;
+      if (clickCount === 1) {
+        card.classList.add('open');
+        startConfetti();
+        //setTimeout(stopConfetti, 5000); // Detiene después de 5s
+      }
+    }
+
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function startConfetti() {
+      confetti = Array.from({ length: 100 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 10 + 10,
+        color: `hsl(${Math.random() * 360}, 70%, 65%)`,
+        tilt: Math.random() * 10 - 10,
+        tiltAngle: 0
+      }));
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach((c, i) => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+        ctx.stroke();
+        c.y += Math.cos(c.d) + 2;
+        c.tiltAngle += 0.1;
+        c.tilt = Math.sin(c.tiltAngle) * 15;
+        if (c.y > canvas.height) confetti[i] = {
+          ...c,
+          y: -20,
+          x: Math.random() * canvas.width
+        };
+      });
+      animationFrame = requestAnimationFrame(animateConfetti);
+    }
+
+    let animationFrame;
+    function stopConfetti() {
+      cancelAnimationFrame(animationFrame);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
